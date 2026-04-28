@@ -1,87 +1,87 @@
-1 #include <iostream>
-2 #include <vector>
-3 #include <cmath>
-4
-5 typedef std::vector<std::vector<double>> Matrix;
-6 typedef std::vector<double> Vector;
-7
-8 // Մատրից-վեկտոր բազմապատկման ֆունկցիա
-9 Vector matvec(const Matrix& M, const Vector& v) {
-10    int n = v.size();
-11    Vector res(n, 0.0);
-12    for (int i = 0; i < n; ++i)
-13        for (int j = 0; j < n; ++j)
-14            res[i] += M[i][j] * v[j];
-15    return res;
-16 }
-17
-18 // Վեկտորների գումարում
-19 Vector vecadd(const Vector& a, const Vector& b) {
-20    int n = a.size();
-21    Vector res(n);
-22    for (int i = 0; i < n; ++i)
-23        res[i] = a[i] + b[i];
-24    return res;
-25 }
-26
-27 // Վեկտորների սկալяр արտադրյալ
-28 double dot(const Vector& a, const Vector& b) {
-29    double sum = 0.0;
-30    for (size_t i = 0; i < a.size(); ++i)
-31        sum += a[i] * b[i];
-32    return sum;
-33 }
-34
-35 int main() {
-36    int n, steps;
-37    std::cout << "Մուտքագրեք վեկտորի չափը (n): ";
-38    std::cin >> n;
-39    std::cout << "Մուտքագրեք քայլերի քանակը (steps): ";
-40    std::cin >> steps;
-41
-42    Matrix A(n, Vector(n)), B(n, Vector(n));
-43    std::cout << "Մուտքագրեք A մատրիցը (յուրաքանչյուր տողը առանձին՝ " << n << " թիվ մեկ տողում):\n";
-44    for (int i = 0; i < n; ++i) {
-45        std::cout << "A-ի " << i+1 << "-րդ տողը: ";
-46        for (int j = 0; j < n; ++j)
-47            std::cin >> A[i][j];
-48    }
-49
-50    std::cout << "Մուտքագրեք B մատրիցը (յուրաքանչյուր տողը առանձին՝ " << n << " թիվ մեկ տողում):\n";
-51    for (int i = 0; i < n; ++i) {
-52        std::cout << "B-ի " << i+1 << "-րդ տողը: ";
-53        for (int j = 0; j < n; ++j)
-54            std::cin >> B[i][j];
-55    }
-56
-57    Vector x(n), w(n), u(n);
-58
-59    std::cout << "Մուտքագրեք x0 վեկտորը (մի տողում " << n << " թիվ): ";
-60    for (int i = 0; i < n; ++i) std::cin >> x[i];
-61
-62    std::cout << "Մուտքագրեք w վեկտորը (մի տողում " << n << " թիվ): ";
-63    for (int i = 0; i < n; ++i) std::cin >> w[i];
-64
-65    std::cout << "Մուտքագրեք u կառավարման վեկտորը (մի տողում " << n << " թիվ): ";
-66    for (int i = 0; i < n; ++i) std::cin >> u[i];
-67
-68    for (int k = 0; k < steps; ++k) {
-69        Vector Ax = matvec(A, x);
-70        Vector Bu = matvec(B, u);
-71        Vector x_new = vecadd(Ax, Bu);
-72
-73        double y = dot(w, x_new);
-74
-75        std::cout << "Քայլ " << k+1 << ": y = " << y << ", x = [";
-76        for (int i = 0; i < n; ++i) {
-77            std::cout << x_new[i];
-78            if (i != n-1) std::cout << ", ";
-79        }
-80        std::cout << "]" << std::endl;
-81
-82        // Կարող ես այստեղ փոփոխել u-ի արժեքը ըստ կառավարման օրենքի, եթե անհրաժեշտ է
-83
-84        x = x_new;
-85    }
-86    return 0;
-87 }
+ #include <iostream>
+ #include <vector>
+ #include <cmath>
+
+ typedef std::vector<std::vector<double>> Matrix;
+ typedef std::vector<double> Vector;
+
+ // Մատրից-վեկտոր բազմապատկման ֆունկցիա
+ Vector matvec(const Matrix& M, const Vector& v) {
+    int n = v.size();
+    Vector res(n, 0.0);
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+            res[i] += M[i][j] * v[j];
+    return res;
+ }
+
+ // Վեկտորների գումարում
+ Vector vecadd(const Vector& a, const Vector& b) {
+    int n = a.size();
+    Vector res(n);
+    for (int i = 0; i < n; ++i)
+        res[i] = a[i] + b[i];
+    return res;
+ }
+
+ // Վեկտորների սկալяр արտադրյալ
+ double dot(const Vector& a, const Vector& b) {
+    double sum = 0.0;
+    for (size_t i = 0; i < a.size(); ++i)
+        sum += a[i] * b[i];
+    return sum;
+ }
+
+ int main() {
+    int n, steps;
+    std::cout << "Մուտքագրեք վեկտորի չափը (n): ";
+    std::cin >> n;
+    std::cout << "Մուտքագրեք քայլերի քանակը (steps): ";
+    std::cin >> steps;
+
+    Matrix A(n, Vector(n)), B(n, Vector(n));
+    std::cout << "Մուտքագրեք A մատրիցը (յուրաքանչյուր տողը առանձին՝ " << n << " թիվ մեկ տողում):\n";
+    for (int i = 0; i < n; ++i) {
+        std::cout << "A-ի " << i+1 << "-րդ տողը: ";
+        for (int j = 0; j < n; ++j)
+            std::cin >> A[i][j];
+    }
+
+    std::cout << "Մուտքագրեք B մատրիցը (յուրաքանչյուր տողը առանձին՝ " << n << " թիվ մեկ տողում):\n";
+    for (int i = 0; i < n; ++i) {
+        std::cout << "B-ի " << i+1 << "-րդ տողը: ";
+        for (int j = 0; j < n; ++j)
+            std::cin >> B[i][j];
+    }
+
+    Vector x(n), w(n), u(n);
+
+    std::cout << "Մուտքագրեք x0 վեկտորը (մի տողում " << n << " թիվ): ";
+    for (int i = 0; i < n; ++i) std::cin >> x[i];
+
+    std::cout << "Մուտքագրեք w վեկտորը (մի տողում " << n << " թիվ): ";
+    for (int i = 0; i < n; ++i) std::cin >> w[i];
+
+    std::cout << "Մուտքագրեք u կառավարման վեկտորը (մի տողում " << n << " թիվ): ";
+    for (int i = 0; i < n; ++i) std::cin >> u[i];
+
+    for (int k = 0; k < steps; ++k) {
+        Vector Ax = matvec(A, x);
+        Vector Bu = matvec(B, u);
+        Vector x_new = vecadd(Ax, Bu);
+
+        double y = dot(w, x_new);
+
+        std::cout << "Քայլ " << k+1 << ": y = " << y << ", x = [";
+        for (int i = 0; i < n; ++i) {
+            std::cout << x_new[i];
+            if (i != n-1) std::cout << ", ";
+        }
+        std::cout << "]" << std::endl;
+
+        // Կարող ես այստեղ փոփոխել u-ի արժեքը ըստ կառավարման օրենքի, եթե անհրաժեշտ է
+
+        x = x_new;
+    }
+    return 0;
+ }
