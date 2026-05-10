@@ -15,7 +15,7 @@ int main() {
     double target_weight;
 
     cout << "=========================================================" << endl;
-    cout << "          NUTELLA PRODUCTION OPTIMIZER (v3.0)            " << endl;
+    cout << "          NUTELLA PRODUCTION OPTIMIZER                   " << endl;
     cout << "=========================================================" << endl;
     
     cout << ">> Փուլերի քանակը: "; cin >> KET;
