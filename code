@@ -14,71 +14,90 @@ int main() {
     int KET, N, M1;
     double target_weight;
 
-    cout << "=== NUTELLA OPTIMIZER: QUALITY CHECK (Q < 1) ===" << endl;
+    cout << "=========================================================" << endl;
+    cout << "          NUTELLA PRODUCTION OPTIMIZER (v3.0)            " << endl;
+    cout << "=========================================================" << endl;
     
-    cout << "Քանի փուլով է իրականացվոում օպտիմալացումը ; cin >> KET;
-    cout << "Մուտքային փոփոխականների քանակը ամեն փուլում: "; cin >> N;
-    cout << "Կառավարող փոփոխականների  քանակը ամեն փուլում: "; cin >> M1;
-    cout << "Թիրախային քաշ (գրամ): "; cin >> target_weight;
+    cout << ">> Փուլերի քանակը: "; cin >> KET;
+    cout << ">> Մուտքային փոփոխականների (X) քանակը ամեն փուլում: "; cin >> N;
+    cout << ">> Կառավարողներ փոփոխականների (U) քանակը ամեն փուլում: "; cin >> M1;
+    cout << ">> Թիրախային քաշ (գրամ): "; cin >> target_weight;
 
     vector<vector<Boundary>> X_bounds(KET, vector<Boundary>(N));
     vector<vector<Boundary>> U_bounds(KET, vector<Boundary>(M1));
 
     for (int i = 0; i < KET; i++) {
-        cout << "\n--- ՓՈՒԼ " << i + 1 << " ---" << endl;
+        cout << "\n[ ՓՈՒԼ " << i + 1 << " ] Սահմանների ներմուծում" << endl;
         for (int j = 0; j < N; j++) {
-            cout << "  X" << i << j+1 << " [MIN MAX]: "; cin >> X_bounds[i][j].min >> X_bounds[i][j].max;
+            cout << "  X" << i+1 << j+1 << " [MIN MAX]: "; cin >> X_bounds[i][j].min >> X_bounds[i][j].max;
         }
         for (int j = 0; j < M1; j++) {
             cout << "  U" << i+1 << j+1 << " [MIN MAX]: "; cin >> U_bounds[i][j].min >> U_bounds[i][j].max;
         }
     }
 
+    double total_max_x = 0;
+    for(int i=0; i<KET; i++) for(int j=0; j<N; j++) total_max_x += X_bounds[i][j].max;
+    
+    double factor = target_weight / (total_max_x ? total_max_x : 1);
     double total_Q = 0;
     double current_sum = 0;
-    
-    // Հաշվարկում ենք քաշի բաշխման գործակիցը
-    double total_max = 0;
-    for(int i=0; i<KET; i++) for(int j=0; j<N; j++) total_max += X_bounds[i][j].max;
-    double factor = target_weight / total_max;
 
-    cout << "\n" << string(70, '=') << endl;
-    cout << left << setw(10) << "Փուլ" << setw(30) << "Քանակներ (X)" << "Stage Q" << endl;
-    cout << string(70, '-') << endl;
-    cout << fixed << setprecision(3);
+    // Աղյուսակի գլխամաս
+    cout << "\n" << setfill('=') << setw(105) << "" << endl;
+    cout << setfill(' ');
+    cout << "| " << left << setw(6) << "Փուլ" 
+         << "| " << setw(30) << "Օպտիմալ Բաղադրիչներ (X)" 
+         << "| " << setw(40) << "Օպտիմալ Ռեժիմներ (U)" 
+         << "| " << setw(15) << "Stage Q" << " |" << endl;
+    cout << "| " << setfill('-') << setw(102) << "" << " |" << endl;
+    cout << setfill(' ');
+
+    cout << fixed << setprecision(2);
 
     for (int i = 0; i < KET; i++) {
         double stage_q = 0;
         string x_vals = "";
+        string u_vals = "";
+
+        // X-երի հաշվարկ
         for (int j = 0; j < N; j++) {
             double opt_x = X_bounds[i][j].max * factor;
             current_sum += opt_x;
-            x_vals += to_string((int)opt_x) + "գ. ";
-            
-            // Q_stage = (Շեղում առավելագույնից)^2
+            x_vals += to_string((int)opt_x) + "գ ";
             stage_q += pow(X_bounds[i][j].max - opt_x, 2);
         }
-        cout << left << setw(10) << i + 1 << setw(30) << x_vals << stage_q << endl;
+
+        // U-երի հաշվարկ
+        for (int j = 0; j < M1; j++) {
+            double opt_u = (U_bounds[i][j].min + U_bounds[i][j].max) / 2.0;
+            if (i == 1 && j == 0) u_vals += "Արագ: " + to_string((int)opt_u) + " ";
+            else if (i == KET-1 && j == M1-1) u_vals += "Ժամ: " + to_string((int)opt_u) + "ր ";
+            else u_vals += "U" + to_string(i+1) + to_string(j+1) + ":" + to_string((int)opt_u) + " ";
+        }
+
+        cout << "| " << left << setw(6) << i + 1 
+             << "| " << setw(30) << x_vals 
+             << "| " << setw(40) << u_vals 
+             << "| " << setw(15) << stage_q << " |" << endl;
         total_Q += stage_q;
     }
 
-    // Նորմավորում ենք Q-ն, որպեսզի այն լինի հասկանալի տիրույթում
     double normalized_Q = total_Q / 100.0; 
 
-    cout << string(70, '=') << endl;
-    cout << "Ընդհանուր քաշ: " << current_sum << " գրամ" << endl;
-    cout << "Օպտիմալության չափանիշ (Q): " << normalized_Q << endl;
+    cout << setfill('=') << setw(105) << "" << setfill(' ') << endl;
+    cout << "\n>> ՎԵՐՋՆԱԿԱՆ ԱՐԴՅՈՒՆՔՆԵՐ:" << endl;
+    cout << "   - Ընդհանուր քաշ: " << current_sum << " գրամ" << endl;
+    cout << "   - Օպտիմալության չափանիշ (Q): " << normalized_Q << endl;
 
-    // --- ԵՐԿՐՈՐԴ ՊԱՅՄԱՆԻ ՍՏՈՒԳՈՒՄ ---
-    cout << "\nՍտուգվում է որակի պայմանը (Q < 1)..." << endl;
-    
+    cout << "\n>> ՈՐԱԿԻ ԳՆԱՀԱՏԱԿԱՆ (Q < 1):" << endl;
     if (normalized_Q < 1.0) {
-        cout << ">>> ՀԱՋՈՂՈՒԹՅՈՒՆ! Q = " << normalized_Q << " (փոքր է 1-ից):" << endl;
-        cout << "Արտադրանքը համապատասխանում է բարձր որակի չափանիշներին:" << endl;
+        cout << "   [OK] ՈՐԱԿԸ ՀԱՄԱՊԱՏԱՍԽԱՆՈՒՄ Է: Բաղադրատոմսը հաստատված է:" << endl;
     } else {
-        cout << ">>> ՈՒՇԱԴՐՈՒԹՅՈՒՆ! Q = " << normalized_Q << " (մեծ է 1-ից):" << endl;
-        cout << "Որակը բավարար չէ: Խորհուրդ է տրվում վերանայել սահմանները:" << endl;
+        cout << "   [!!] ՈՐԱԿԸ ՑԱԾՐ Է: Անհրաժեշտ է փոփոխել սահմանները:" << endl;
     }
+    cout << "=========================================================" << endl;
 
     return 0;
+}
 }
