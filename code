@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 #include <iomanip>
 #include <algorithm>
 
@@ -11,55 +12,73 @@ struct Component {
 };
 
 int main() {
-    const double X1 = 100.0; 
+    const double TARGET_X = 100.0;
     
-    vector<Component> recipe = {
-        {"Շաքար", 52, 58, 0.25, 0},        
-        {"Բուսայուղ", 14, 22, 0.20, 0},    
-        {"Ընկույզ", 10, 15, 0.18, 0},     
-        {"Կակաո", 5, 9, 0.17, 0},         
-        {"Կաթի փոշի", 4, 8, 0.15, 0},       
-        {"Հավելումներ", 0, 2, 0.05, 0}      
+    // 1. Բաղադրիչներ (X1) - Հայերեն անուններով
+    vector<Component> ingredients = {
+        {"Շաքար", 52.0, 58.0, 0.24, 0},
+        {"Բուսայուղ  ", 14.0, 18.0, 0.21, 0},
+        {"Ընկույզ    ", 11.0, 15.0, 0.18, 0},
+        {"Կաթի փոշի   ", 4.0, 8.0, 0.15, 0},
+        {"Կակաո       ", 5.0, 9.0, 0.17, 0},
+        {"Հավելումներ ", 1.0, 3.0, 0.05, 0}
     };
 
-    double current_scalar = 0; // Ընթացիկ խտացված արժեքը
-    double total_weighted_space = 0; // Կշռված ազատ տարածությունը բաշխման համար
-    
-    for (int i = 0; i < recipe.size(); i++) {
-        recipe[i].optimal_val = recipe[i].min;
-        current_scalar += recipe[i].optimal_val;
-        total_weighted_space += (recipe[i].max - recipe[i].min) * recipe[i].weight;
+    // 2. Կառավարում (U1)
+    vector<Component> controls = {
+        {"Ջերմաստիճան", 45.0, 55.0, 0, 0},
+        {"Տևողություն", 8.0, 16.0, 0, 0}
+    };
+
+    // 3. Կառավարման օպտիմալացում (Ընտրում ենք միջին արժեքը՝ U = (Umin + Umax) / 2)
+    for (int i = 0; i < controls.size(); i++) {
+        controls[i].optimal_val = (controls[i].min + controls[i].max) / 2.0;
     }
 
-    double needed = TARGET_SCALAR - current_scalar;
+    // 4. Բաղադրիչների խտացմամբ օպտիմալացում (Q -> min)
+    double current_sum = 0;
+    for (int i = 0; i < ingredients.size(); i++) {
+        ingredients[i].optimal_val = ingredients[i].min;
+        current_sum += ingredients[i].optimal_val;
+    }
 
-    if (needed > 0) {
-        for (int i = 0; i < recipe.size(); i++) {
-            double space = recipe[i].max - recipe[i].min;
-            double proportion = (space * recipe[i].weight) / total_weighted_space;
-            double to_add = min(space, needed * proportion); 
-            recipe[i].optimal_val += to_add;
+    double imbalance = TARGET_X - current_sum;
+
+    if (imbalance > 0) {
+        double total_W = 0;
+        for (const auto& c : ingredients) total_W += c.W;
+
+        for (int i = 0; i < ingredients.size(); i++) {
+            double space = ingredients[i].max - ingredients[i].min;
+            double to_add = min(space, imbalance * (ingredients[i].W / total_W));
+            ingredients[i].optimal_val += to_add;
         }
     }
 
-    // ՏՊՈՒՄ
+    // 5. ԱՐԴՅՈՒՆՔՆԵՐԻ ՏՊՈՒՄ
     cout << fixed << setprecision(1);
-    cout << "=== ՆՈՒՏԵԼԼԱՅԻ ՕՊՏԻՄԱԼ ԲԱՂԱԴՐԱՏՈՄՍ (y1 = 100) ===\n" << endl;
+    cout << "====================================================" << endl;
+    cout << "   ՆՈՒՏԵԼԼԱՅԻ ՕՊՏԻՄԱԼԱՑՄԱՆ ԱՐԴՅՈՒՆՔՆԵՐ (X = 100գ)" << endl;
+    cout << "====================================================" << endl;
     
-    cout << left << setw(16) << "Բաղադրիչ" << "\tMin\tMax\tԱլգորիթմ\tԻրական" << endl;
-    cout << "----------------------------------------------------------------" << endl;
+    cout << left << setw(16) << "Բաղադրիչ     " << setw(8) << "Min" << setw(8) << "Max" << "Optimal" << endl;
+    cout << "----------------------------------------------------" << endl;
     
     double final_weight = 0;
-    vector<double> real_vals = {54.0, 18.5, 13.0, 7.4, 6.6, 0.5};
-    
-    for (int i = 0; i < recipe.size(); i++) {
-        cout << left << setw(16) << recipe[i].name 
-             << "\t" << recipe[i].min << "\t" << recipe[i].max << "\t" 
-             << recipe[i].optimal_val << "\t\t" << real_vals[i] << endl;
-        final_weight += recipe[i].optimal_val;
+    for (int i = 0; i < ingredients.size(); i++) {
+        cout << left << setw(16) << ingredients[i].name 
+             << setw(8) << ingredients[i].min 
+             << setw(8) << ingredients[i].max 
+             << ingredients[i].optimal_val << " գր" << endl;
+        final_weight += ingredients[i].optimal_val;
     }
-    
-    cout << "\nՍտացված խտացված արժեքը (y1): " << final_weight << " գրամ" << endl;
+
+    cout << "----------------------------------------------------" << endl;
+    cout << "ԸՆԴՀԱՆՈՒՐ ՔԱՇ (y1): " << final_weight << " գրամ" << endl;
+
+    cout << "\n=== ՏԵԽՆՈԼՈԳԻԱԿԱՆ ՕՊՏԻՄԱԼ ՌԵԺԻՄ (U1) ===" << endl;
+    cout << controls[0].name << ": " << controls[0].optimal_val << " C" << endl;
+    cout << controls[1].name << ": " << controls[1].optimal_val << " րոպե" << endl;
 
     return 0;
 }
